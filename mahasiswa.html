@@ -4,5 +4,186 @@
     </head>
     <body>
         program HTML pertama mahasiswa
+      
+        -- Tampil Data Mahasiswa --
+        
+        <?php
+  require_once "koneksi.php";
+  $sql = "SELECT * FROM tb_mahasiswa";
+  $result = mysqli_query($con, $sql);
+?>
+<html>
+ <head>
+  <title>Daftar Mahasiswa</title>
+ </head>	
+ <body>
+  <table border="1">
+   <tr>
+    <th>ID Mahasiswa</th> 
+    <th>Nama Mahasiswa</th> 
+    <th>Alamat</th> 
+    <th>Telp</th> 
+    <th>Email</th>
+   </tr>
+   <?php while ($data = mysqli_fetch_row($result)): ?>
+    <tr>
+    	<td><?php echo $data[0]; ?></td>
+    	<td><?php echo $data[2]; ?></td>
+    	<td><?php echo $data[3]; ?></td>    	
+      <td><?php echo $data[4]; ?></td>   
+      <td><?php echo $data[5]; ?></td>   
+     </tr>	
+    <?php endwhile; ?>
+   </table>
+  </body>
+ </html>
+
+<?php
+  // Membebaskan sumber daya hasil query
+  mysqli_free_result($result); 
+  // Menutup koneksi dengan menggunakan fungsi umum
+  db_disconnect($con);
+?>
     </body>
 </html>
+
+-- Form Tambah Mahasiswa --
+
+<html> 
+ <head>        
+  <title>Tambah Data Mahasiswa</title>
+ </head>
+ <body>
+  <h1>Tambah Data Mahasiswa</h1>
+  <form action="ctrl_mahasiswa.php?act=tambah" method ="POST"> 
+   <table border ="0">
+    
+    <tr> 
+     <td> Nama Mahasiswa </td> 
+     <td> : <input type="text" name="txt_nm"></td>
+    </tr>
+    <tr> 
+     <td> Alamat </td> 
+     <td> : <textarea name='txt_almt' style='width: 250px; height: 
+             100px;'></textarea>
+     </td>
+    </tr>
+    <tr> 
+     <td> Telp </td> 
+     <td> : <input type="text" name="txt_telp"> </td>
+    </tr>
+    <tr> 
+     <td> Email </td> 
+     <td> : <input type="text" name="txt_email"> </td>
+    </tr>
+    <tr> 
+     <td> <input type="submit" value="Save">   
+          <input type=button value=Back onclick=self.history.back()> 
+     </td>
+    </tr>
+   </table>            
+  </form>
+ </body>
+</html>
+
+-- Form Update Mahasiswa --
+
+<?php
+  require_once "koneksi.php";
+  $cari=$_GET['id'];
+  $sql = "SELECT * FROM tb_mahasiswa WHERE id_mahasiswa = '$cari'";
+  $result = mysqli_query($con, $sql);
+  $data = mysqli_fetch_row($result);
+?> 
+<html>  
+  <head>        
+   <title>Update Data Mahasiswa</title>
+  </head>
+  <body>
+   <h1>Update Data Mahasiswa</h1>
+   <form action="ctrl_mahasiswa.php?act=update" method ="POST"> 
+    <table border ="0">
+     <input type="hidden" name="idn" 
+            value="<?php echo $data[0]; ?>">
+     <tr> 
+       <td> ID Mahasiswa </td> 
+       <td> : <input type="text" 
+                     value="<?php echo $data[0]; ?>"
+                     disabled>
+       </td>
+     </tr>
+     <tr> 
+       <td> Nama Mahasiswa </td> 
+       <td> : <input type="text" name="txt_nm" 
+                     value="<?php echo $data[2]; ?> ">
+       </td>
+     </tr>
+     <tr> 
+       <td> Alamat </td> 
+       <td> : <textarea name='txt_almt' style='width: 250px; height: 
+               100px;'><?php echo $data[3]; ?> </textarea>
+       </td>
+     </tr>
+     <tr> 
+       <td> Telp </td> 
+       <td> : <input type="text" name="txt_telp" 
+              value="<?php echo $data[4]; ?>"> 
+       </td>
+     </tr>
+     <tr> 
+       <td> Email </td> 
+       <td> : <input type="text" name="txt_email" 
+                     value="<?php echo $data[5]; ?>"> 
+       </td>
+     </tr>
+     <tr> 
+       <td> <input type="submit" value="Save">   
+            <input type=button value=Back onclick=self.history.back()> 
+       </td>
+     </tr>
+   </table>            
+  </form>
+ </body>
+</html>
+
+-- CTRL Mahasiswa --
+
+<?php 
+  require_once "koneksi.php";	
+  $act = $_GET['act'];
+  
+  if($act == "tambah") {
+    $sql = "INSERT INTO tb_mahasiswa 
+              (nm_mahasiswa, alamat, telp, email) 
+	          VALUES 
+		          ('$_POST[txt_nm]', '$_POST[txt_almt]', 
+               '$_POST[txt_telp]', '$_POST[txt_email]')";	 					
+    
+    mysqli_query($con, $sql); 
+
+    // Menutup koneksi
+    db_disconnect($con);
+  } 
+
+  if($act == "update") {
+    $sql = "UPDATE tb_mahasiswa SET							 	        
+            nm_mahasiswa = '$_POST[txt_nm]',
+            alamat 	  = '$_POST[txt_almt]',
+            telp 	  = '$_POST[txt_telp]',
+            email 	  = '$_POST[txt_email]' 				  	
+            WHERE id_mahasiswa = '$_POST[idn]'"; 
+				
+    mysqli_query($con, $sql);
+
+	  // Menutup koneksi
+	  db_disconnect($con);
+  }
+  if($act == "hapus") {
+    $sql = "DELETE FROM tb_mahasiswa WHERE id_mahasiswa = $_GET[idm]";
+    mysqli_query($con, $sql);
+
+    // Menutup koneksi
+    db_disconnect($con);
+  }
+  header('location:tampil_data_mahasiswa3.php'); 
+?>
